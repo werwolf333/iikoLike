@@ -2,11 +2,12 @@ import json
 from decimal import Decimal
 import pytest
 from django.urls import reverse
+from django.test import Client
 from core.models import Order
-
+from typing import Tuple
 
 @pytest.fixture
-def client_and_db(client, db):
+def client_and_db(client: Client, db) -> Tuple[Client, None]:
     """
     Фикстура, которая предоставляет клиент и очищенную базу данных.
     Это делается для того, чтобы каждый тест был изолирован.
@@ -14,7 +15,7 @@ def client_and_db(client, db):
     return client, db
 
 
-def test_order_create_api(client_and_db):
+def test_order_create_api(client_and_db: Tuple[Client, None]) -> None:
     """
     Тест проверяет создание заказа через API:
     1. Проверяет статус ответа (должен быть 201 Created).
@@ -27,8 +28,8 @@ def test_order_create_api(client_and_db):
     """
     client, db = client_and_db  # Распаковываем фикстуру
 
-    url = reverse('core:order_create_api')
-    data = {
+    url: str = reverse('core:order_create_api')
+    data: dict = {
         "table_number": 2,
         "status": "pending",
         "items": [{"item": "Burger", "price": 8.99}],
@@ -40,7 +41,7 @@ def test_order_create_api(client_and_db):
 
     assert response.status_code == 201
     assert Order.objects.count() == 1
-    order = Order.objects.first()
+    order: Order = Order.objects.first()  # Тип явно указан
     assert order.table_number == 2
     assert order.status == Order.Status.PENDING
     assert order.items == data["items"]

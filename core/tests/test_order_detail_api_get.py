@@ -1,11 +1,13 @@
 import pytest
 from django.urls import reverse
+from django.test import Client
 from core.models import Order
 from decimal import Decimal
+from typing import Tuple, Dict, Any
 
 
 @pytest.fixture
-def client_and_db(client, db):
+def client_and_db(client: Client, db) -> Tuple[Client, None]:
     """
     Фикстура, которая предоставляет клиент и очищенную базу данных.
     Это делается для того, чтобы каждый тест был изолирован.
@@ -14,7 +16,7 @@ def client_and_db(client, db):
 
 
 @pytest.fixture
-def test_order(db):
+def test_order(db) -> Order:
     """
     Фикстура для создания тестового заказа.
     """
@@ -26,7 +28,7 @@ def test_order(db):
     )
 
 
-def test_order_detail_api_get(client_and_db, test_order):
+def test_order_detail_api_get(client_and_db: Tuple[Client, None], test_order: Order) -> None:
     """
     Тест проверяет получение деталей заказа через API:
     1. Проверка, что запрос возвращает успешный ответ (200 OK).
@@ -35,7 +37,7 @@ def test_order_detail_api_get(client_and_db, test_order):
     client, db = client_and_db  # Распаковываем фикстуру для клиента и базы данных
 
     # Формируем URL для запроса с использованием ID тестового заказа
-    url = reverse('core:order_detail_api', args=[test_order.id])
+    url: str = reverse('core:order_detail_api', args=[test_order.id])
 
     # Отправляем GET-запрос для получения деталей заказа
     response = client.get(url)
@@ -44,7 +46,7 @@ def test_order_detail_api_get(client_and_db, test_order):
     assert response.status_code == 200
 
     # Получаем данные из ответа в формате JSON
-    data = response.json()
+    data: Dict[str, Any] = response.json()
 
     # Проверка, что все поля данных совпадают с полями тестового заказа
     assert data["id"] == test_order.id

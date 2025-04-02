@@ -1,11 +1,13 @@
 import json
 from django.urls import reverse
 import pytest
+from django.test import Client
 from core.models import Order
+from typing import Tuple
 
 
 @pytest.fixture
-def client_and_db(client, db):
+def client_and_db(client: Client, db) -> Tuple[Client, None]:
     """
     Фикстура, которая предоставляет клиент и очищенную базу данных.
     Это делается для того, чтобы каждый тест был изолирован.
@@ -14,7 +16,7 @@ def client_and_db(client, db):
 
 
 @pytest.fixture
-def test_order(db):
+def test_order(db) -> Order:
     """
     Фикстура для создания тестового заказа.
     """
@@ -27,12 +29,12 @@ def test_order(db):
 
 
 @pytest.mark.django_db
-def test_order_delete_api_success(client_and_db, test_order):
+def test_order_delete_api_success(client_and_db: Tuple[Client, None], test_order: Order) -> None:
     """
     Тест успешного удаления заказа через API.
     """
     client, db = client_and_db
-    url = reverse('core:order_delete_api', args=[test_order.id])
+    url: str = reverse('core:order_delete_api', args=[test_order.id])
 
     # Отправляем DELETE-запрос
     response = client.delete(url)
@@ -49,12 +51,12 @@ def test_order_delete_api_success(client_and_db, test_order):
 
 
 @pytest.mark.django_db
-def test_order_delete_api_method_not_allowed(client_and_db, test_order):
+def test_order_delete_api_method_not_allowed(client_and_db: Tuple[Client, None], test_order: Order) -> None:
     """
     Тест неподдерживаемого метода для удаления заказа.
     """
     client, db = client_and_db
-    url = reverse('core:order_delete_api', args=[test_order.id])
+    url: str = reverse('core:order_delete_api', args=[test_order.id])
 
     # Отправляем несоответствующий метод GET
     response = client.get(url)
@@ -67,12 +69,12 @@ def test_order_delete_api_method_not_allowed(client_and_db, test_order):
 
 
 @pytest.mark.django_db
-def test_order_delete_api_not_found(client_and_db):
+def test_order_delete_api_not_found(client_and_db: Tuple[Client, None]) -> None:
     """
     Тест попытки удалить несуществующий заказ.
     """
     client, db = client_and_db
-    url = reverse('core:order_delete_api', args=[999])  # Несуществующий ID
+    url: str = reverse('core:order_delete_api', args=[999])  # Несуществующий ID
 
     # Отправляем DELETE-запрос
     response = client.delete(url)

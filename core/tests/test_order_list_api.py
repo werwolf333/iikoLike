@@ -1,16 +1,18 @@
 import pytest
 from django.urls import reverse
+from django.test import Client
 from core.models import Order
+from typing import Tuple, List
 
 
 @pytest.fixture
-def client_and_db(client, db):
+def client_and_db(client: Client, db) -> Tuple[Client, None]:
     """Фикстура, предоставляющая клиент и очищенную БД."""
     return client, db
 
 
 @pytest.fixture
-def create_orders(db):
+def create_orders(db) -> List[Order]:
     """Фикстура для создания нескольких заказов в базе данных."""
     return [
         Order.objects.create(table_number=1, status="pending", total_price=15.99),
@@ -20,10 +22,10 @@ def create_orders(db):
 
 
 @pytest.mark.django_db
-def test_order_list_api(client_and_db, create_orders):
+def test_order_list_api(client_and_db: Tuple[Client, None], create_orders: List[Order]) -> None:
     """Тест получения всех заказов."""
     client, db = client_and_db
-    url = reverse('core:order_list_api')
+    url: str = reverse('core:order_list_api')
 
     response = client.get(url)
 
@@ -35,10 +37,10 @@ def test_order_list_api(client_and_db, create_orders):
 
 
 @pytest.mark.django_db
-def test_order_list_api_filter_by_table_number(client_and_db, create_orders):
+def test_order_list_api_filter_by_table_number(client_and_db: Tuple[Client, None], create_orders: List[Order]) -> None:
     """Тест фильтрации по номеру стола."""
     client, db = client_and_db
-    url = reverse('core:order_list_api') + "?table_number=1"
+    url: str = reverse('core:order_list_api') + "?table_number=1"
 
     response = client.get(url)
 
@@ -50,10 +52,10 @@ def test_order_list_api_filter_by_table_number(client_and_db, create_orders):
 
 
 @pytest.mark.django_db
-def test_order_list_api_filter_by_status(client_and_db, create_orders):
+def test_order_list_api_filter_by_status(client_and_db: Tuple[Client, None], create_orders: List[Order]) -> None:
     """Тест фильтрации по статусу заказа."""
     client, db = client_and_db
-    url = reverse('core:order_list_api') + "?status=pending"
+    url: str = reverse('core:order_list_api') + "?status=pending"
 
     response = client.get(url)
 
@@ -65,10 +67,10 @@ def test_order_list_api_filter_by_status(client_and_db, create_orders):
 
 
 @pytest.mark.django_db
-def test_order_list_api_no_orders(client_and_db):
+def test_order_list_api_no_orders(client_and_db: Tuple[Client, None]) -> None:
     """Тест, когда заказов нет (пустая база)."""
     client, db = client_and_db
-    url = reverse('core:order_list_api')
+    url: str = reverse('core:order_list_api')
 
     response = client.get(url)
 

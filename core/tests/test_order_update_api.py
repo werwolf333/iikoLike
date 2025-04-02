@@ -2,10 +2,13 @@ import json
 import pytest
 from decimal import Decimal
 from django.urls import reverse
+from django.test import Client
 from core.models import Order
+from typing import Tuple, Dict, Any
+
 
 @pytest.fixture
-def client_and_db(client, db):
+def client_and_db(client: Client, db) -> Tuple[Client, None]:
     """
     Фикстура, которая предоставляет клиент и очищенную базу данных.
     Это делается для того, чтобы каждый тест был изолирован.
@@ -13,7 +16,8 @@ def client_and_db(client, db):
     return client, db
 
 
-def test_order_update_api(client_and_db):
+@pytest.mark.django_db
+def test_order_update_api(client_and_db: Tuple[Client, None]) -> None:
     """
     Тест проверяет обновление заказа через API:
     1. Проверяет статус ответа (должен быть 200 OK).
@@ -26,7 +30,7 @@ def test_order_update_api(client_and_db):
     client, db = client_and_db  # Распаковываем фикстуру
 
     # Создание начального заказа в базе данных
-    initial_data = {
+    initial_data: Dict[str, Any] = {
         "table_number": 1,
         "status": "pending",
         "items": [
@@ -38,10 +42,10 @@ def test_order_update_api(client_and_db):
     order.update_total_price()  # Пересчитываем total_price
 
     # URL для обновления заказа
-    url = reverse('core:order_update_api', args=[order.id])
+    url: str = reverse('core:order_update_api', args=[order.id])
 
     # Данные для обновления заказа
-    update_data = {
+    update_data: Dict[str, Any] = {
         "table_number": 3,
         "status": "ready",
         "items": [
@@ -66,6 +70,8 @@ def test_order_update_api(client_and_db):
     assert order.status == "ready"
 
     # Пересчитываем total_price на основе обновленных данных в items
-    total_price = sum(item['price'] * item['quantity'] for item in update_data['items'])
+    total_price: Decimal = sum(
+        Decimal(item['price']) * item['quantity'] for item in update_data['items']
+    )
     order.update_total_price()  # Обновляем общую стоимость
-    assert order.total_price == Decimal(str(total_price))
+    assert order.total_price == total_price

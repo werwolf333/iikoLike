@@ -2,11 +2,13 @@ import json
 from decimal import Decimal
 import pytest
 from django.urls import reverse
+from django.test import Client
 from core.models import Order
+from typing import Tuple, Dict, Any
 
 
 @pytest.fixture
-def client_and_db(client, db):
+def client_and_db(client: Client, db) -> Tuple[Client, None]:
     """
     Фикстура, которая предоставляет клиент и очищенную базу данных.
     Это делается для того, чтобы каждый тест был изолирован.
@@ -15,23 +17,24 @@ def client_and_db(client, db):
 
 
 @pytest.fixture
-def test_order(db):
+def test_order(db) -> Order:
     """
     Фикстура для создания тестового заказа.
     """
-    return Order.objects.create(table_number=1, status="pending", total_price=10.99)
+    return Order.objects.create(table_number=1, status="pending", total_price=Decimal("10.99"))
 
 
-def test_update_order_status_api_success(client_and_db, test_order):
+@pytest.mark.django_db
+def test_update_order_status_api_success(client_and_db: Tuple[Client, None], test_order: Order) -> None:
     """
     Тест успешного обновления статуса заказа через API.
     """
     client, db = client_and_db
-    order_to_update = test_order
-    url = reverse('core:update_order_status_api', args=[order_to_update.id])
+    order_to_update: Order = test_order
+    url: str = reverse('core:update_order_status_api', args=[order_to_update.id])
 
     # Данные для обновления статуса
-    new_status = {'status': 'completed'}
+    new_status: Dict[str, str] = {'status': 'completed'}
 
     # Отправляем POST-запрос с новым статусом
     response = client.post(url, json.dumps(new_status), content_type='application/json')
@@ -47,15 +50,16 @@ def test_update_order_status_api_success(client_and_db, test_order):
     assert response.json() == {'message': 'Order status updated successfully'}
 
 
-def test_update_order_status_api_not_found(client_and_db):
+@pytest.mark.django_db
+def test_update_order_status_api_not_found(client_and_db: Tuple[Client, None]) -> None:
     """
     Тест попытки обновить статус несуществующего заказа.
     """
     client, db = client_and_db
-    url = reverse('core:update_order_status_api', args=[999])  # Используем несуществующий ID
+    url: str = reverse('core:update_order_status_api', args=[999])  # Используем несуществующий ID
 
     # Отправляем POST-запрос с новым статусом
-    new_status = {'status': 'completed'}
+    new_status: Dict[str, str] = {'status': 'completed'}
     response = client.post(url, json.dumps(new_status), content_type='application/json')
 
     # Проверяем статус ответа

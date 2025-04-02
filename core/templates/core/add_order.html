@@ -26,14 +26,17 @@
                         <div class="form-group col-md-6">
                             <label>Название блюда:</label>
                             <input type="text" name="item_names[]" class="form-control" value="{{ item.name }}" required>
+                            <div class="invalid-feedback">Введите название блюда.</div>
                         </div>
                         <div class="form-group col-md-3">
                             <label>Цена:</label>
                             <input type="number" step="0.01" name="item_prices[]" class="form-control" value="{{ item.price }}" required>
+                            <div class="invalid-feedback">Введите цену.</div>
                         </div>
                         <div class="form-group col-md-3">
                             <label>Количество:</label>
                             <input type="number" min="1" name="item_quantities[]" class="form-control" value="{{ item.quantity }}" required>
+                            <div class="invalid-feedback">Введите количество.</div>
                         </div>
                     </div>
                     <button type="button" onclick="removeItem(this)" class="btn btn-danger mt-2">Удалить</button>
@@ -62,14 +65,17 @@
                     <div class="form-group col-md-6">
                         <label>Название блюда:</label>
                         <input type="text" name="item_names[]" class="form-control" required>
+                        <div class="invalid-feedback">Введите название блюда.</div>
                     </div>
                     <div class="form-group col-md-3">
                         <label>Цена:</label>
                         <input type="number" step="0.01" name="item_prices[]" class="form-control" required>
+                        <div class="invalid-feedback">Введите цену.</div>
                     </div>
                     <div class="form-group col-md-3">
                         <label>Количество:</label>
                         <input type="number" min="1" name="item_quantities[]" class="form-control" value="1" required>
+                        <div class="invalid-feedback">Введите количество.</div>
                     </div>
                 </div>
                 <button type="button" onclick="removeItem(this)" class="btn btn-danger mt-2">Удалить</button>
@@ -85,25 +91,56 @@
     document.getElementById('order-form').addEventListener('submit', function(event) {
         const itemsContainer = document.getElementById('items-container');
         const items = [];
+        let hasValidItems = true;
 
+        // Проверяем, что хотя бы одно блюдо добавлено
+        if (!itemsContainer.querySelectorAll('.item-container').length) {
+            showValidationError("Вы должны добавить хотя бы одно блюдо.");
+            event.preventDefault();
+            return;
+        }
+
+        // Проверяем каждое добавленное блюдо
         Array.from(itemsContainer.querySelectorAll('.item-container')).forEach(container => {
-            const name = container.querySelector('[name="item_names[]"]').value;
+            const name = container.querySelector('[name="item_names[]"]').value.trim();
             const price = parseFloat(container.querySelector('[name="item_prices[]"]').value);
             const quantity = parseInt(container.querySelector('[name="item_quantities[]"]').value);
 
-            items.push({
-                name: name,
-                price: price,
-                quantity: quantity
-            });
+            if (!name || isNaN(price) || isNaN(quantity) || quantity < 1) {
+                showValidationError("Пожалуйста, заполните все поля корректно для каждого блюда.");
+                hasValidItems = false;
+            } else {
+                items.push({
+                    name: name,
+                    price: price,
+                    quantity: quantity
+                });
+            }
         });
 
-        const hiddenInput = document.createElement('input');
-        hiddenInput.type = 'hidden';
-        hiddenInput.name = 'items_json';
-        hiddenInput.value = JSON.stringify(items);
-        this.appendChild(hiddenInput);
+        // Если есть хотя бы одно невалидное блюдо, отменяем отправку формы
+        if (!hasValidItems) {
+            event.preventDefault();
+        } else {
+            // Если всё хорошо, создаем скрытое поле для передачи данных
+            const hiddenInput = document.createElement('input');
+            hiddenInput.type = 'hidden';
+            hiddenInput.name = 'items_json';
+            hiddenInput.value = JSON.stringify(items);
+            this.appendChild(hiddenInput);
+        }
     });
+
+    function showValidationError(message) {
+        const formGroup = document.querySelector('.needs-validation');
+        formGroup.classList.add('was-validated');
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'alert alert-danger';
+        errorDiv.role = 'alert';
+        errorDiv.textContent = message;
+        document.body.prepend(errorDiv);
+        setTimeout(() => errorDiv.remove(), 3000); // Удаляем сообщение через 3 секунды
+    }
 </script>
 
 </body>
