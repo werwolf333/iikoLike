@@ -1,0 +1,60 @@
+# Игнорировать системные файлы
+.DS_Store              # macOS
+Thumbs.db              # Windows
+
+# Игнорировать виртуальные окружения Python
+venv/
+env/
+*.egg-info/
+*.pyc
+*.pyo
+__pycache__/
+
+# Игнорировать файлы настройки IDE
+.vscode/
+.idea/
+
+# Игнорировать файлы для Docker
+docker-compose.override.yml
+Dockerfile
+
+# Игнорировать файлы сессий
+*.log
+*.pid
+*.swp
+*.bak
+
+# Игнорировать настройки и файлы с переменными окружения
+*.env
+*.env.*
+.env.local
+.env.production
+
+# Игнорировать настройки для PyCharm
+.idea/
+
+# Игнорировать конфигурации для coverage
+.coverage
+coverage.xml
+*.cover
+*.hypothesis/
+
+# Игнорировать файлы базы данных
+db.sqlite3
+*.db
+
+# Игнорировать скомпилированные файлы Python
+*.pyc
+*.pyo
+*.pyd
+
+# Игнорировать зависимости Node.js
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Игнорировать файлы, связанные с тестированием
+*.tox/
+*.nox/
+*.coverage/
+*.hypothesis/

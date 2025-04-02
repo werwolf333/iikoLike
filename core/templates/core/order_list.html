@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Список заказов</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+
+<div class="container mt-5">
+    <h1 class="mb-4">Список заказов</h1>
+
+    <div class="search-form mb-4">
+        <form method="GET" class="row">
+            <div class="col-md-4">
+                <input type="number" name="table_number" class="form-control" placeholder="Поиск по номеру стола" value="{{ request.GET.table_number }}">
+            </div>
+            <div class="col-md-4">
+                <select name="status" class="form-control">
+                    <option value="">Выберите статус</option>
+                    {% for status_value, status_name in STATUS_CHOICES %}
+                        <option value="{{ status_value }}" {% if request.GET.status == status_value %}selected{% endif %}>{{ status_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-4">
+                <button type="submit" class="btn btn-primary w-100">Поиск</button>
+            </div>
+        </form>
+    </div>
+
+    <table class="table table-bordered table-striped">
+        <thead class="thead-dark">
+            <tr>
+                <th>ID</th>
+                <th>Действия</th>
+                <th>Номер стола</th>
+                <th>Блюда</th>
+                <th>Стоимость</th>
+                <th>Статус</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for order in orders %}
+                <tr>
+                    <td>{{ order.id }}</td>
+                    <td>
+                        <a href="{% url 'core:order_delete' order.id %}" class="text-danger">Удалить</a>
+                        <a href="{% url 'core:order_edit' order.id %}" class="text-info">Редактировать</a>
+                    </td>
+                    <td>{{ order.table_number }}</td>
+                    <td>
+                        {% if order.items %}
+                            <ul class="list-group list-group-flush">
+                                {% for item in order.items %}
+                                    <li class="list-group-item">{{ item.name }} ({{ item.quantity }} × {{ item.price }} ₽)</li>
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            <p class="text-muted">Нет блюд</p>
+                        {% endif %}
+                    </td>
+                    <td>{{ order.total_price }} ₽</td>
+                    <td>
+                        <form method="POST" action="{% url 'core:update_order_status' order.id %}" class="d-flex align-items-center">
+                            {% csrf_token %}
+                            <select name="status" class="form-control form-control-sm mr-2">
+                                {% for status_value, status_name in STATUS_CHOICES %}
+                                    <option value="{{ status_value }}" {% if order.status == status_value %}selected{% endif %}>{{ status_name }}</option>
+                                {% endfor %}
+                            </select>
+                            <button type="submit" class="btn btn-sm btn-primary">Изменить</button>
+                        </form>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="7" class="text-center">Заказов нет.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{% url 'core:order_add' %}" class="btn btn-primary mt-3">Добавить новый заказ</a>
+    <a href="{% url 'core:revenue' %}" class="btn btn-success mt-3">Подсчитать выручку</a>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+</body>
+</html>

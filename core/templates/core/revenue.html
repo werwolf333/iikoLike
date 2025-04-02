@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Подсчет выручки</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+
+<div class="container mt-5">
+    <h1 class="mb-4">Подсчет выручки</h1>
+
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">Выручка за сегодня:</h5>
+            <p class="card-text">{{ today_revenue }} ₽</p>
+        </div>
+    </div>
+
+    <div class="card mt-3">
+        <div class="card-body">
+            <h5 class="card-title">Выручка за последнюю неделю:</h5>
+            <p class="card-text">{{ last_week_revenue }} ₽</p>
+        </div>
+    </div>
+
+    <div class="card mt-3">
+        <div class="card-body">
+            <h5 class="card-title">Выручка за последний месяц:</h5>
+            <p class="card-text">{{ last_month_revenue }} ₽</p>
+        </div>
+    </div>
+
+    <a href="{% url 'core:order_list' %}" class="btn btn-primary mt-3">Назад к списку заказов</a>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+</body>
+</html>

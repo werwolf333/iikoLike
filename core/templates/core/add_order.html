@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Добавление заказа</title>
+    <!-- Подключение Bootstrap CSS (Bootstrap 4) -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+
+<div class="container mt-5">
+    <h1 class="mb-4">Добавление заказа</h1>
+
+    <form id="order-form" method="post" class="needs-validation" novalidate>
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="id_table_number">Номер стола:</label>
+            <input type="number" id="id_table_number" name="table_number" class="form-control" value="{{ form.table_number.value|default:'' }}" required>
+            <div class="invalid-feedback">Введите номер стола.</div>
+        </div>
+
+        <div id="items-container">
+            {% for item in form.items %}
+                <div class="item-container card mt-3 p-3">
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label>Название блюда:</label>
+                            <input type="text" name="item_names[]" class="form-control" value="{{ item.name }}" required>
+                        </div>
+                        <div class="form-group col-md-3">
+                            <label>Цена:</label>
+                            <input type="number" step="0.01" name="item_prices[]" class="form-control" value="{{ item.price }}" required>
+                        </div>
+                        <div class="form-group col-md-3">
+                            <label>Количество:</label>
+                            <input type="number" min="1" name="item_quantities[]" class="form-control" value="{{ item.quantity }}" required>
+                        </div>
+                    </div>
+                    <button type="button" onclick="removeItem(this)" class="btn btn-danger mt-2">Удалить</button>
+                </div>
+            {% endfor %}
+        </div>
+
+        <button type="button" onclick="addItem()" class="btn btn-primary mt-3">Добавить блюдо</button>
+        <button type="submit" class="btn btn-success mt-3">Добавить заказ</button>
+    </form>
+
+    <a href="{% url 'core:order_list' %}" class="btn btn-secondary mt-3">Назад к списку заказов</a>
+</div>
+
+<!-- Подключение Bootstrap JS (Bootstrap 4) -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<script>
+    function addItem() {
+        const container = document.getElementById('items-container');
+        const newItem = `
+            <div class="item-container card mt-3 p-3">
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <label>Название блюда:</label>
+                        <input type="text" name="item_names[]" class="form-control" required>
+                    </div>
+                    <div class="form-group col-md-3">
+                        <label>Цена:</label>
+                        <input type="number" step="0.01" name="item_prices[]" class="form-control" required>
+                    </div>
+                    <div class="form-group col-md-3">
+                        <label>Количество:</label>
+                        <input type="number" min="1" name="item_quantities[]" class="form-control" value="1" required>
+                    </div>
+                </div>
+                <button type="button" onclick="removeItem(this)" class="btn btn-danger mt-2">Удалить</button>
+            </div>
+        `;
+        container.insertAdjacentHTML('beforeend', newItem);
+    }
+
+    function removeItem(button) {
+        button.parentElement.remove();
+    }
+
+    document.getElementById('order-form').addEventListener('submit', function(event) {
+        const itemsContainer = document.getElementById('items-container');
+        const items = [];
+
+        Array.from(itemsContainer.querySelectorAll('.item-container')).forEach(container => {
+            const name = container.querySelector('[name="item_names[]"]').value;
+            const price = parseFloat(container.querySelector('[name="item_prices[]"]').value);
+            const quantity = parseInt(container.querySelector('[name="item_quantities[]"]').value);
+
+            items.push({
+                name: name,
+                price: price,
+                quantity: quantity
+            });
+        });
+
+        const hiddenInput = document.createElement('input');
+        hiddenInput.type = 'hidden';
+        hiddenInput.name = 'items_json';
+        hiddenInput.value = JSON.stringify(items);
+        this.appendChild(hiddenInput);
+    });
+</script>
+
+</body>
+</html>
