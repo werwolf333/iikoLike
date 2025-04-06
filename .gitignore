@@ -3,7 +3,7 @@
 Thumbs.db              # Windows
 
 # Игнорировать виртуальные окружения Python
-venv/
+.venv/
 env/
 *.egg-info/
 *.pyc
